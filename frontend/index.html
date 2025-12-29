@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SYRMA SGS | Smart Employee System</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial;
+  background:#f3f6fb;
+}
+
+/* ================== ANIMATIONS ================== */
+@keyframes gradientMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes scaleIn{
+  from{opacity:0;transform:scale(.95)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* ================== NAVBAR ================== */
+header{
+  height:64px;
+  padding:0 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#fff;
+  background:linear-gradient(270deg,#0f172a,#1e3a8a,#2563eb,#0ea5e9);
+  background-size:600% 600%;
+  animation:gradientMove 12s ease infinite;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+header .left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  animation:fadeUp .8s ease;
+}
+header img{height:36px}
+header .right{animation:fadeUp .8s ease}
+
+/* ================== LAYOUT ================== */
+.container{padding:25px}
+
+/* ================== CARDS ================== */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:25px;
+}
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:30px;
+  text-align:center;
+  box-shadow:0 15px 35px rgba(0,0,0,.08);
+  animation:fadeUp .8s ease;
+  transition:all .3s ease;
+}
+/* 🌈 HOVER GLOW */
+.card:hover{
+  transform:translateY(-6px) scale(1.02);
+  box-shadow:
+    0 0 0 2px rgba(99,102,241,.3),
+    0 25px 60px rgba(99,102,241,.45);
+}
+.card h2{margin:0;font-size:42px;color:#6366f1}
+.card p{margin-top:8px;font-weight:600;color:#555}
+
+/* ================== CHARTS ================== */
+.charts{
+  margin:30px 0;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:25px;
+}
+.chart-card{
+  height:240px;
+  background:radial-gradient(circle at top,#020617,#0f172a);
+  border-radius:26px;
+  box-shadow:0 25px 45px rgba(0,0,0,.45);
+  padding:15px;
+  animation:scaleIn .9s ease;
+}
+.chart-card canvas{
+  width:100%!important;
+  height:100%!important;
+}
+
+/* ================== PUNCH ================== */
+.punch-box{
+  background:#fff;
+  padding:18px;
+  border-radius:14px;
+  display:flex;
+  gap:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  animation:fadeUp .9s ease;
+}
+.punch-box input,
+.punch-box select{
+  flex:1;
+  padding:14px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+.punch-box button{
+  background:#22c55e;
+  color:#fff;
+  border:none;
+  padding:14px 34px;
+  border-radius:10px;
+  font-weight:600;
+  transition:transform .2s;
+}
+.punch-box button:hover{transform:scale(1.05)}
+
+/* ================== FILTERS ================== */
+.filters{
+  margin:15px 0;
+  display:flex;
+  gap:12px;
+  animation:fadeUp .9s ease;
+}
+.search-wrapper{
+  position:relative;
+  min-width:260px;
+}
+.search-wrapper i{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#111827;
+}
+.search-wrapper input{
+  width:100%;
+  padding:10px 10px 10px 36px;
+  border-radius:8px;
+  border:1px solid #d1d5db;
+  background:#fff;
+}
+
+/* ================== TABLE ================== */
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  animation:fadeUp 1s ease;
+}
+th{
+  background:#1f2937;
+  color:#fff;
+  padding:14px;
+}
+td{
+  padding:12px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+}
+
+/* STATUS */
+.status-badge{
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+  color:#fff;
+}
+.status-IN{background:#22c55e}
+.status-OUT{background:#ef4444}
+
+/* ROW COLORS */
+tr.row-IN{background:#ecfdf5}
+tr.row-OUT{background:#fef2f2}
+tr.row-IN:hover{background:#dcfce7}
+tr.row-OUT:hover{background:#fee2e2}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="left">
+    <img src="https://companieslogo.com/img/orig/SYRMA.NS_BIG-b83dd874.png">
+    <strong>Smart Employee System</strong>
+  </div>
+  <div class="right">
+    <div id="clock"></div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- CARDS -->
+<div class="cards">
+  <div class="card"><h2 id="total">0</h2><p>Total Employees</p></div>
+  <div class="card"><h2 id="inside">0</h2><p>Inside</p></div>
+  <div class="card"><h2 id="outside">0</h2><p>Outside</p></div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts">
+  <div class="chart-card"><canvas id="lineChart"></canvas></div>
+  <div class="chart-card"><canvas id="donutChart"></canvas></div>
+  <div class="chart-card"><canvas id="barChart"></canvas></div>
+</div>
+
+<!-- PUNCH -->
+<div class="punch-box">
+  <input id="empId" placeholder="Scan Card / Enter Employee ID">
+  <select id="unit">
+    <option>UNIT 1</option>
+    <option>UNIT 2</option>
+    <option>UNIT 3</option>
+    <option>UNIT 4</option>
+  </select>
+  <button onclick="punch()">PUNCH</button>
+</div>
+
+<!-- FILTER -->
+<div class="filters">
+  <div class="search-wrapper">
+    <i>🔍</i>
+    <input id="search" placeholder="Search EmpID / Name / Dept">
+  </div>
+  <select id="unitFilter">
+    <option value="">All Units</option>
+    <option>UNIT 1</option>
+    <option>UNIT 2</option>
+    <option>UNIT 3</option>
+    <option>UNIT 4</option>
+  </select>
+</div>
+
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Name</th><th>Dept</th><th>Unit</th>
+<th>IN</th><th>OUT</th><th>Status</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+
+</div>
+
+<!-- 🔊 PUNCH SOUND -->
+<audio id="beepIn" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+<audio id="beepOut" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+<script>
+/* CLOCK */
+setInterval(()=>clock.innerText=new Date().toLocaleString("en-IN"),1000);
+
+/* 📺 AUTO TV FULLSCREEN (on load) */
+document.addEventListener("DOMContentLoaded",()=>{
+  document.documentElement.requestFullscreen().catch(()=>{});
+});
+
+/* ===== LOGIC BELOW UNCHANGED ===== */
+
+function formatTime(t){
+  if(!t) return "";
+  const h=parseInt(t.substring(11,13));
+  const m=t.substring(14,16);
+  const hh=((h%12)||12);
+  return `${hh}:${m} ${h>=12?"pm":"am"}`;
+}
+
+const totalEl=total, insideEl=inside, outsideEl=outside;
+const rowsEl=rows, empInput=empId;
+const searchEl=search, unitSel=unit, unitFilter=document.getElementById("unitFilter");
+
+let cache=[];
+
+/* CHARTS */
+let lineChart, donutChart, barChart;
+const lineChartEl=document.getElementById("lineChart");
+const donutChartEl=document.getElementById("donutChart");
+const barChartEl=document.getElementById("barChart");
+
+function initCharts(){
+  lineChart=new Chart(lineChartEl,{type:"line",data:{labels:["9AM","10AM","11AM","12PM","1PM","2PM"],datasets:[{label:"Inside",data:[0,0,0,0,0,0],borderColor:"#22c55e",tension:.4}]},options:{responsive:true,maintainAspectRatio:false}});
+  donutChart=new Chart(donutChartEl,{type:"doughnut",data:{labels:["Inside","Outside"],datasets:[{data:[0,0],backgroundColor:["#22c55e","#ef4444"]}]},options:{responsive:true,maintainAspectRatio:false,cutout:"70%"}});
+  barChart=new Chart(barChartEl,{type:"bar",data:{labels:["Inside","Outside"],datasets:[{data:[0,0],backgroundColor:["#22c55e","#ef4444"],borderRadius:10}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+
+function updateCharts(i,o){
+  donutChart.data.datasets[0].data=[i,o];
+  barChart.data.datasets[0].data=[i,o];
+  donutChart.update(); barChart.update();
+}
+
+function render(data){
+  rowsEl.innerHTML=data.map(r=>`
+    <tr class="row-${r.Status}">
+      <td>${r.EmpID}</td>
+      <td>${r.EmpName||""}</td>
+      <td>${r.EmpDept||""}</td>
+      <td>${r.Unit}</td>
+      <td>${formatTime(r.InTime)}</td>
+      <td>${formatTime(r.OutTime)}</td>
+      <td><span class="status-badge status-${r.Status}">${r.Status}</span></td>
+    </tr>
+  `).join("");
+}
+
+searchEl.addEventListener("input",()=>{
+  const v=searchEl.value.toLowerCase();
+  render(cache.filter(r=>
+    (r.EmpID+"").includes(v)||
+    (r.EmpName||"").toLowerCase().includes(v)||
+    (r.EmpDept||"").toLowerCase().includes(v)
+  ));
+});
+unitFilter.addEventListener("change",()=>{
+  const u=unitFilter.value;
+  render(u?cache.filter(r=>r.Unit===u):cache);
+});
+
+async function loadAll(){
+  const h=await fetch("/api/attendance/headcount",{cache:"no-store"}).then(r=>r.json());
+  totalEl.innerText=h.data.Total;
+  insideEl.innerText=h.data.Inside;
+  outsideEl.innerText=h.data.Outside;
+  updateCharts(h.data.Inside,h.data.Outside);
+
+  const t=await fetch("/api/attendance/live",{cache:"no-store"}).then(r=>r.json());
+  cache=t.data;
+  render(cache);
+}
+
+async function punch(){
+  const v=empInput.value.trim();
+  if(!v) return;
+
+  await fetch("/api/attendance/punch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({empId:v,unit:unitSel.value})});
+
+  // 🔊 sound feedback (safe)
+  const last = cache[0];
+  if(last && last.Status==="IN") document.getElementById("beepIn").play();
+  else document.getElementById("beepOut").play();
+
+  empInput.value="";
+  searchEl.value="";
+  unitFilter.value="";
+  setTimeout(loadAll,300);
+}
+
+initCharts();
+loadAll();
+setInterval(loadAll,4000);
+</script>
+
+</body>
+</html>

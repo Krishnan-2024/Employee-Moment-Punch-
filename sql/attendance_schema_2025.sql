@@ -1,0 +1,25 @@
+
+USE employee;
+
+CREATE TABLE AttendanceRegister(
+ ID INT IDENTITY PRIMARY KEY,
+ EmpID INT,
+ Unit NVARCHAR(20),
+ InTime DATETIME,
+ OutTime DATETIME,
+ PunchDate DATE DEFAULT CAST(GETDATE() AS DATE)
+);
+
+CREATE VIEW VW_LiveAttendanceToday AS
+SELECT * FROM AttendanceRegister
+WHERE PunchDate=CAST(GETDATE() AS DATE);
+
+CREATE PROCEDURE SP_AttendancePunch
+ @EmpID INT,@Unit NVARCHAR(20)
+AS
+BEGIN
+ IF EXISTS(SELECT 1 FROM AttendanceRegister WHERE EmpID=@EmpID AND OutTime IS NULL AND PunchDate=CAST(GETDATE() AS DATE))
+  UPDATE AttendanceRegister SET OutTime=GETDATE() WHERE EmpID=@EmpID AND OutTime IS NULL;
+ ELSE
+  INSERT INTO AttendanceRegister(EmpID,Unit,InTime) VALUES(@EmpID,@Unit,GETDATE());
+END;

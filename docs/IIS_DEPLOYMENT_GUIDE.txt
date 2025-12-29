@@ -1,0 +1,8 @@
+
+IIS DEPLOYMENT GUIDE (2025)
+
+1. Install IIS
+2. Install Node.js
+3. Run npm install
+4. Use PM2 to host node app
+5. Configure reverse proxy
